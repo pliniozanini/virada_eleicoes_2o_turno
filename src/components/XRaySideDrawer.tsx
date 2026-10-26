@@ -10,7 +10,11 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { SetorVotacao } from '../types/electoral';
-import { FACTOR_META, INCOME_BRACKET_LABELS } from '../utils/heuristicEngine';
+import {
+  FACTOR_META,
+  INCOME_BRACKET_LABELS,
+  getSecoesForSetor,
+} from '../utils/heuristicEngine';
 import {
   formatWhatsAppSummary,
   renderSocialCardDataUrl,
@@ -49,9 +53,14 @@ export const XRaySideDrawer: React.FC<XRaySideDrawerProps> = ({
     }
   }, [setor?.id, highlightedSecao]);
 
+  const allSecoes = useMemo(
+    () => (setor ? getSecoesForSetor(setor) : []),
+    [setor]
+  );
+
   const sortedSecoes = useMemo(() => {
     if (!setor) return [];
-    const filtered = setor.secoes_internas.filter((s) =>
+    const filtered = allSecoes.filter((s) =>
       secaoFilter.trim()
         ? String(s.secao_numero).includes(secaoFilter.trim())
         : true
@@ -61,7 +70,7 @@ export const XRaySideDrawer: React.FC<XRaySideDrawerProps> = ({
       const valB = b[sortField];
       return sortAsc ? valA - valB : valB - valA;
     });
-  }, [setor, sortField, sortAsc, secaoFilter]);
+  }, [setor, allSecoes, sortField, sortAsc, secaoFilter]);
 
   if (!setor) return null;
 
@@ -191,7 +200,7 @@ export const XRaySideDrawer: React.FC<XRaySideDrawerProps> = ({
                 : 'bg-slate-800/70 text-slate-400 hover:text-white'
             }`}
           >
-            Urnas / Salas ({setor.secoes_internas.length})
+            Urnas / Salas ({allSecoes.length})
           </button>
         </div>
 
@@ -326,7 +335,7 @@ export const XRaySideDrawer: React.FC<XRaySideDrawerProps> = ({
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs text-slate-300">
-                  {setor.secoes_internas.length} seções eleitorais neste edifício
+                  {allSecoes.length} seções eleitorais neste edifício
                 </span>
                 <div className="relative w-32">
                   <Search className="w-3 h-3 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />

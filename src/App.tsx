@@ -45,6 +45,15 @@ export default function App() {
     [setores]
   );
 
+  const totalUrnasCount = useMemo(
+    () =>
+      setores.reduce(
+        (acc, s) => acc + (s.secoes_count || s.secoes_internas?.length || 8),
+        0
+      ),
+    [setores]
+  );
+
   const handleSelectSetor = useCallback(
     (setor: SetorVotacao, secaoNum?: number) => {
       setSelectedSetor(setor);
@@ -132,7 +141,7 @@ export default function App() {
             onClick={() => handleSelectCity(null)}
             className="hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
           >
-            Visão Nacional ({setores.length} Setores)
+            Visão Nacional ({setores.length.toLocaleString('pt-BR')} Setores · 27 UFs)
           </button>
           <button
             onClick={() => {
@@ -157,7 +166,7 @@ export default function App() {
             onClick={() => setIsTseModalOpen(true)}
             className="px-3.5 py-1.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-500 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
           >
-            Base TSE (3.873 Urnas)
+            Base TSE ({totalUrnasCount.toLocaleString('pt-BR')} Urnas)
           </button>
         </div>
       </header>
@@ -262,7 +271,7 @@ export default function App() {
             </div>
             <div className="p-5 space-y-3.5 text-xs text-slate-300 leading-relaxed">
               <p>
-                A base nacional consolidada abrange <strong>518 Setores de Votação (Escolas/Locais)</strong> e <strong>3.873 Seções Eleitorais (Urnas)</strong> nas 12 regiões metropolitanas. Os polígonos são gerados por <strong>tesselação de Voronoi contígua (recorte por semiplanos de Sutherland–Hodgman)</strong>: regiões centrais densas produzem microterritórios compactos (~0,2 a 0,8 km²) e zonas periféricas geram setores amplos, compartilhando fronteiras exatas com as escolas vizinhas.
+                A base nacional consolidada abrange todas as <strong>27 Unidades da Federação (43 municípios, capitais e polos do interior)</strong>, totalizando <strong>{setores.length.toLocaleString('pt-BR')} Setores de Votação (Escolas/Locais)</strong> e <strong>{totalUrnasCount.toLocaleString('pt-BR')} Seções Eleitorais (Urnas)</strong> pré-processadas offline. Os polígonos são gerados por <strong>tesselação de Voronoi contígua (recorte por semiplanos de Sutherland–Hodgman)</strong>: regiões centrais densas produzem microterritórios compactos (~0,2 a 0,8 km²) e zonas periféricas geram setores amplos, compartilhando fronteiras exatas com as escolas vizinhas.
               </p>
               <div className="p-3.5 rounded-xl bg-slate-950 border border-white/10 font-mono text-[11px] space-y-1.5 text-slate-200">
                 <div className="text-emerald-400 font-semibold">
@@ -273,7 +282,7 @@ export default function App() {
                 <div>3. Pool_BlankNull_Drop = max(0, BN_1T − BN_2T)</div>
                 <div>4. Pool_Third_Way = Total de votos da 3ª Via no 1º Turno</div>
                 <div className="text-sky-400">
-                  * Casos onde ΔFlávio &gt; 0 (63 setores) são destacados em Azul Ciano (+22).
+                  * Casos onde ΔFlávio &gt; 0 ({flavioGrewCount} setores) são destacados em Azul Ciano (+22).
                 </div>
               </div>
               <div className="pt-2 flex justify-end">

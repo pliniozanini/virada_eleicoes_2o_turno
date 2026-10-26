@@ -20,20 +20,17 @@ export type IncomeBracketKey =
 export interface SecaoEleitoral {
   secao_numero: number;
   eleitores_aptos: number;
-  // 1st Round
   lula_1t: number;
   flavio_1t: number;
   terceira_via_1t: number;
   brancos_nulos_1t: number;
   abstencao_1t: number;
-  // 2nd Round
   lula_2t: number;
   flavio_2t: number;
   brancos_nulos_2t: number;
   abstencao_2t: number;
-  // Pre-computed Simple Balance Heuristic at Section Level
   delta_lula: number;
-  delta_flavio: number; // positive when Flavio gained votes in 2nd round!
+  delta_flavio: number;
   flavio_gain_2t: number;
   pool_flavio_loss: number;
   pool_abstention_drop: number;
@@ -72,24 +69,23 @@ export interface SetorVotacao {
   renda_media_mensal_sm: number;
   teve_2t_governador: boolean;
   contexto_palanque_estadual: string;
-  center: [number, number]; // [lat, lng]
-  polygon: [number, number][]; // Mathematically clipped Voronoi polygon sharing borders with neighbors
+  center: [number, number];
+  polygon: [number, number][];
   area_km2: number;
+  secoes_count: number;
+  secao_start: number;
   eleitores_aptos: number;
-  // Aggregated 1st Round
   lula_1t: number;
   flavio_1t: number;
   terceira_via_1t: number;
   brancos_nulos_1t: number;
   abstencao_1t: number;
-  // Aggregated 2nd Round
   lula_2t: number;
   flavio_2t: number;
   brancos_nulos_2t: number;
   abstencao_2t: number;
-  // Pre-computed Heuristic Pools & Attribution
   delta_lula: number;
-  delta_flavio: number; // positive when Flavio gained votes in 2T
+  delta_flavio: number;
   flavio_grew_2t: boolean;
   flavio_gain_2t: number;
   delta_abstencao: number;
@@ -98,21 +94,17 @@ export interface SetorVotacao {
   pool_blank_null_drop: number;
   pool_third_way: number;
   pool_total: number;
-  // Attributed new votes for Lula
   attr_flavio_loss: number;
   attr_abstention_drop: number;
   attr_blank_null_drop: number;
   attr_third_way: number;
-  // Attributed percentages (0 - 100)
   pct_flavio_loss: number;
   pct_abstention_drop: number;
   pct_blank_null_drop: number;
   pct_third_way: number;
   dominant_factor: DominantFactorKey;
-  // Pre-computed Neighborhood Insight
   comparativo_vizinhanca: NeighborhoodComparison;
-  // Internal Ballot Boxes (Salas / Urnas)
-  secoes_internas: SecaoEleitoral[];
+  secoes_internas?: SecaoEleitoral[];
 }
 
 export interface CityQuickJump {
@@ -142,6 +134,8 @@ export interface ConsolidatedDataset {
   gerado_em: string;
   status_apuracao: string;
   total_urnas_apuradas_pct: number;
+  total_setores_count: number;
+  total_secoes_count: number;
   resumo_nacional: {
     lula_1t_nacional: number;
     lula_2t_nacional: number;

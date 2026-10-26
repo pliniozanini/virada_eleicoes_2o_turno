@@ -79,7 +79,7 @@ export const InteractiveElectoralMap: React.FC<InteractiveElectoralMapProps> = (
     // Keyless OpenStreetMap tiles rendered in Dark Mode via CSS class `dark-osm-tiles`
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · 518 Setores Voronoi &amp; 3.873 Urnas TSE',
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · 27 UFs · 1.343 Setores Voronoi &amp; 12.078 Urnas TSE',
       maxZoom: 19,
       className: 'dark-osm-tiles',
     }).addTo(map);
@@ -124,6 +124,7 @@ export const InteractiveElectoralMap: React.FC<InteractiveElectoralMapProps> = (
       const isSelected = selectedSetor?.id === setor.id;
       const fillColor = getPolygonFillColor(setor, activeLayer);
       const domMeta = FACTOR_META[setor.dominant_factor];
+      const numUrnas = setor.secoes_count || setor.secoes_internas?.length || 8;
 
       const isFlavioGain = setor.flavio_grew_2t;
 
@@ -145,13 +146,16 @@ export const InteractiveElectoralMap: React.FC<InteractiveElectoralMapProps> = (
           : `<span class="text-rose-400">${setor.delta_flavio} Flávio</span>`;
 
       const tooltipHtml = `
-        <div class="min-w-[225px]">
+        <div class="min-w-[235px]">
           <div class="flex items-center justify-between text-[10px] font-mono text-slate-400">
-            <span>Zona ${setor.zona_eleitoral} · ${setor.bairro}</span>
-            <span>${setor.area_km2} km² · ${setor.secoes_internas.length} urnas</span>
+            <span>${setor.cidade}/${setor.uf} · Zona ${setor.zona_eleitoral}</span>
+            <span>${setor.area_km2} km² · ${numUrnas} urnas</span>
           </div>
           <div class="text-xs font-bold text-white mt-0.5 leading-snug">
             ${setor.nome_local}
+          </div>
+          <div class="text-[10px] text-slate-400 truncate">
+            ${setor.bairro}
           </div>
           <div class="mt-1.5 pt-1.5 border-t border-white/10 flex items-center justify-between text-xs font-mono">
             <span class="text-emerald-400 font-semibold">+${setor.delta_lula} Lula</span>

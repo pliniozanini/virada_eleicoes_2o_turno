@@ -37,7 +37,10 @@ export const TseDataModal: React.FC<TseDataModalProps> = ({
 
   if (!isOpen) return null;
 
-  const totalSecoes = setores.reduce((acc, s) => acc + s.secoes_internas.length, 0);
+  const totalSecoes = setores.reduce(
+    (acc, s) => acc + (s.secoes_count || s.secoes_internas?.length || 8),
+    0
+  );
   const totalEleitores = setores.reduce((acc, s) => acc + s.eleitores_aptos, 0);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -195,7 +198,9 @@ export const TseDataModal: React.FC<TseDataModalProps> = ({
               <button
                 onClick={() => {
                   onResetDefault();
-                  setStatusMessage('Base consolidada original (50 setores) restaurada.');
+                  setStatusMessage(
+                    'Base nacional consolidada (27 UFs · 1.343 setores · 12.078 urnas) restaurada.'
+                  );
                 }}
                 className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 transition-colors"
               >

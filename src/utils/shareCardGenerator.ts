@@ -78,8 +78,9 @@ export function renderSocialCardDataUrl(setor: SetorVotacao): string {
   ctx.fillStyle = '#CBD5E1';
   ctx.font = '500 24px "Public Sans", sans-serif';
   const incomeLabel = INCOME_BRACKET_LABELS[setor.faixa_renda_ibge]?.label || '';
+  const secoesLen = setor.secoes_count || setor.secoes_internas?.length || 8;
   ctx.fillText(
-    `${setor.bairro} · ${setor.cidade}/${setor.uf} · Zona ${setor.zona_eleitoral} · ${setor.secoes_internas.length} Seções · ${incomeLabel}`,
+    `${setor.bairro} · ${setor.cidade}/${setor.uf} · Zona ${setor.zona_eleitoral} · ${secoesLen} Seções · ${incomeLabel}`,
     72,
     y
   );
