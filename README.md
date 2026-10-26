@@ -129,3 +129,27 @@ npx tsx scripts/generateOfflineData.ts
 ```bash
 npm run build
 ```
+
+---
+
+## 7. Publicação no Netlify (Pronto para Deploy)
+
+O repositório já está configurado para publicação imediata no **Netlify** através dos arquivos:
+- **`netlify.toml`**: Define automaticamente o comando de build (`npm run build`), o diretório de saída (`dist`), a versão do Node.js (`NODE_VERSION = "22"`), os cabeçalhos de cache imutável na CDN para `/data/brasil-geopolygons.json` e o redirecionamento SPA.
+- **`public/_redirects`**: Garante que qualquer rota da Single-Page Application (`/*`) resolva para `/index.html` com status `200`.
+
+### Opção A — Deploy Contínuo via GitHub / GitLab
+1. Envie este repositório para o seu GitHub ou GitLab.
+2. No painel do **Netlify**, clique em **Add new site → Import an existing project** e selecione o repositório.
+3. O Netlify detectará automaticamente as configurações do `netlify.toml` (`Build command: npm run build`, `Publish directory: dist`). Basta clicar em **Deploy site**.
+
+### Opção B — Deploy Manual (Netlify CLI ou Drag & Drop)
+1. Gere a pasta estática de produção localmente:
+   ```bash
+   npm run build
+   ```
+2. Arraste a pasta `dist/` gerada diretamente para o [Netlify Drop](https://app.netlify.com/drop) ou publique via CLI:
+   ```bash
+   npx netlify-cli deploy --prod --dir=dist
+   ```
+
