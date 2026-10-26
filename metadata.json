@@ -1,0 +1,6 @@
+{
+  "name": "Anatomia da Virada 2026",
+  "description": "Explorador geoespacial de alta resolução e narrativa de dados sobre a origem dos votos do 2º turno da Eleição Presidencial de 2026 por Setores de Votação e Seções Eleitorais.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
