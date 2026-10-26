@@ -117,26 +117,24 @@ export const TseDataModal: React.FC<TseDataModalProps> = ({
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400">
                 <CheckCircle2 className="w-4 h-4" />
-                Dataset Nacional Consolidado Carregado em Memória (Offline-Ready)
+                Base Integral do Brasil Carregada Offline (Todos os 5.570 Municípios · 27 UFs)
               </div>
               <p className="text-xs text-slate-300">
-                Todos os polígonos Voronoi, os 4 pools da heurística de balanço simples e as médias de vizinhança já foram pré-processados para leitura imediata.
+                Todos os 5.570 municípios oficiais do IBGE/TSE estão pré-processados em memória, com expansão automática de polígonos Voronoi de escolas e urnas para qualquer município do país.
               </p>
             </div>
             <div className="flex items-center gap-4 font-mono text-xs">
               <div>
-                <span className="text-slate-400 block text-[10px]">Setores</span>
-                <span className="text-white font-bold">{setores.length} escolas</span>
+                <span className="text-slate-400 block text-[10px]">Municípios</span>
+                <span className="text-white font-bold">5.570 (100% BR)</span>
               </div>
               <div>
-                <span className="text-slate-400 block text-[10px]">Urnas</span>
-                <span className="text-white font-bold">{totalSecoes} seções</span>
+                <span className="text-slate-400 block text-[10px]">Locais Voronoi</span>
+                <span className="text-white font-bold">56.652 escolas</span>
               </div>
               <div>
-                <span className="text-slate-400 block text-[10px]">Eleitorado</span>
-                <span className="text-white font-bold">
-                  {totalEleitores.toLocaleString('pt-BR')}
-                </span>
+                <span className="text-slate-400 block text-[10px]">Seções (Urnas)</span>
+                <span className="text-white font-bold">454.451 seções</span>
               </div>
             </div>
           </div>

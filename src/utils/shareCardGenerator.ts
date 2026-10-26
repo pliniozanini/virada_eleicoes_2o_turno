@@ -3,29 +3,54 @@ import { FACTOR_META, INCOME_BRACKET_LABELS } from './heuristicEngine';
 
 export function formatWhatsAppSummary(setor: SetorVotacao): string {
   const dom = FACTOR_META[setor.dominant_factor];
-  const lulaDeltaStr = `+${setor.delta_lula.toLocaleString('pt-BR')}`;
+  const secoesLen = setor.secoes_count || setor.secoes_internas?.length || 8;
+  const lulaDeltaStr =
+    setor.delta_lula > 0
+      ? `+${setor.delta_lula.toLocaleString('pt-BR')}`
+      : setor.delta_lula.toLocaleString('pt-BR');
   const flavioDeltaStr =
     setor.delta_flavio >= 0
       ? `+${setor.delta_flavio.toLocaleString('pt-BR')}`
       : setor.delta_flavio.toLocaleString('pt-BR');
 
+  if (setor.flavio_grew_2t || setor.delta_lula <= 0) {
+    return [
+      `*ANÁLISE DE TRANSIÇÃO ELEITORAL 2026 — RAIO-X DO LOCAL DE VOTAÇÃO*`,
+      `📍 *${setor.nome_local}*`,
+      `🏘️ ${setor.bairro} · ${setor.cidade}/${setor.uf} (Zona ${setor.zona_eleitoral} · ${secoesLen} seções)`,
+      ``,
+      `📊 *Comparativo 1º Turno → 2º Turno:*`,
+      `• Candidatura 13 (Lula): ${setor.lula_1t.toLocaleString('pt-BR')} → *${setor.lula_2t.toLocaleString('pt-BR')}* (${lulaDeltaStr} votos — Δ13 ≤ 0)`,
+      `• Candidatura 22 (Flávio): ${setor.flavio_1t.toLocaleString('pt-BR')} → *${setor.flavio_2t.toLocaleString('pt-BR')}* (${flavioDeltaStr} votos — Expansão 22)`,
+      ``,
+      `ℹ️ *Vetores de variação positiva para 13 NÃO SE APLICAM neste local:*`,
+      `• Transferência Direta (22 → 13): *Não se aplica* (Expansão +${setor.flavio_gain_2t} p/ 22)`,
+      `• Comparecimento Adicional (Redução de Abstenção): *Não se aplica*`,
+      `• Realinhamento da 3ª Via (→ 13): *Não se aplica*`,
+      `• Reversão de Brancos/Nulos: *Não se aplica*`,
+      ``,
+      `💡 *Classificação Técnica:* ${dom.label}`,
+      `📌 *Contexto Territorial:* ${setor.comparativo_vizinhanca.resumo_comparativo}`,
+    ].join('\n');
+  }
+
   return [
-    `*ANATOMIA DA VIRADA 2026 — RAIO-X DO LOCAL DE VOTAÇÃO*`,
+    `*ANÁLISE DE TRANSIÇÃO ELEITORAL 2026 — RAIO-X DO LOCAL DE VOTAÇÃO*`,
     `📍 *${setor.nome_local}*`,
-    `🏘️ ${setor.bairro} · ${setor.cidade}/${setor.uf} (Zona ${setor.zona_eleitoral} · ${setor.secoes_internas.length} seções)`,
+    `🏘️ ${setor.bairro} · ${setor.cidade}/${setor.uf} (Zona ${setor.zona_eleitoral} · ${secoesLen} seções)`,
     ``,
-    `📊 *Placar 1º Turno → 2º Turno:*`,
-    `• Lula (13): ${setor.lula_1t.toLocaleString('pt-BR')} → *${setor.lula_2t.toLocaleString('pt-BR')}* (${lulaDeltaStr} votos)`,
-    `• Flávio Bolsonaro (22): ${setor.flavio_1t.toLocaleString('pt-BR')} → *${setor.flavio_2t.toLocaleString('pt-BR')}* (${flavioDeltaStr} votos)`,
+    `📊 *Comparativo 1º Turno → 2º Turno:*`,
+    `• Candidatura 13 (Lula): ${setor.lula_1t.toLocaleString('pt-BR')} → *${setor.lula_2t.toLocaleString('pt-BR')}* (${lulaDeltaStr} votos)`,
+    `• Candidatura 22 (Flávio): ${setor.flavio_1t.toLocaleString('pt-BR')} → *${setor.flavio_2t.toLocaleString('pt-BR')}* (${flavioDeltaStr} votos)`,
     ``,
-    `🔍 *De onde vieram os +${setor.delta_lula.toLocaleString('pt-BR')} novos votos de Lula nesta escola?*`,
-    `1️⃣ Sangria direta do Flávio: *+${setor.attr_flavio_loss} votos* (${setor.pct_flavio_loss}%)`,
-    `2️⃣ Queda de Abstenção: *+${setor.attr_abstention_drop} votos* (${setor.pct_abstention_drop}%)`,
-    `3️⃣ Herança da 3ª Via: *+${setor.attr_third_way} votos* (${setor.pct_third_way}%)`,
-    `4️⃣ Conversão Brancos/Nulos: *+${setor.attr_blank_null_drop} votos* (${setor.pct_blank_null_drop}%)`,
+    `🔍 *Decomposição da Variação Positiva de 13 (+${setor.delta_lula.toLocaleString('pt-BR')} votos):*`,
+    `1️⃣ Transferência Direta (22 → 13): *+${setor.attr_flavio_loss} votos* (${setor.pct_flavio_loss}%)`,
+    `2️⃣ Comparecimento Adicional (-Abstenção): *+${setor.attr_abstention_drop} votos* (${setor.pct_abstention_drop}%)`,
+    `3️⃣ Realinhamento da 3ª Via: *+${setor.attr_third_way} votos* (${setor.pct_third_way}%)`,
+    `4️⃣ Reversão de Brancos/Nulos: *+${setor.attr_blank_null_drop} votos* (${setor.pct_blank_null_drop}%)`,
     ``,
-    `💡 *Fator Dominante:* ${dom.label}`,
-    `📌 *Comparativo com a Vizinhança:* ${setor.comparativo_vizinhanca.resumo_comparativo}`,
+    `💡 *Vetor Predominante:* ${dom.label}`,
+    `📌 *Comparativo Territorial:* ${setor.comparativo_vizinhanca.resumo_comparativo}`,
   ].join('\n');
 }
 
@@ -53,7 +78,7 @@ export function renderSocialCardDataUrl(setor: SetorVotacao): string {
   // Header Kicker
   ctx.fillStyle = '#94A3B8';
   ctx.font = '600 22px "Public Sans", sans-serif';
-  ctx.fillText('ANATOMIA DA VIRADA 2026 · RAIO-X POR LOCAL DE VOTAÇÃO', 72, 82);
+  ctx.fillText('TRANSIÇÃO ELEITORAL 2026 (1ºT → 2ºT) · RAIO-X POR LOCAL DE VOTAÇÃO', 72, 82);
 
   // School Name
   ctx.fillStyle = '#F8FAFC';
@@ -94,7 +119,7 @@ export function renderSocialCardDataUrl(setor: SetorVotacao): string {
   ctx.lineTo(1008, y);
   ctx.stroke();
 
-  // Scorecard Boxes (Lula 13 vs Flávio 22)
+  // Scorecard Boxes (Cand. 13 vs Cand. 22)
   y += 36;
   const boxW = 450;
   const boxH = 190;
@@ -110,16 +135,20 @@ export function renderSocialCardDataUrl(setor: SetorVotacao): string {
 
   ctx.fillStyle = '#FDA4AF';
   ctx.font = '600 22px "Public Sans", sans-serif';
-  ctx.fillText('LULA DA SILVA (13)', 102, y + 46);
+  ctx.fillText('CANDIDATURA 13 (LULA)', 102, y + 46);
 
   ctx.fillStyle = '#FFFFFF';
   ctx.font = '700 48px "JetBrains Mono", monospace';
   ctx.fillText(`${setor.lula_2t.toLocaleString('pt-BR')} votos (2T)`, 102, y + 112);
 
-  ctx.fillStyle = '#34D399';
+  ctx.fillStyle = setor.delta_lula > 0 ? '#34D399' : '#94A3B8';
   ctx.font = '600 24px "JetBrains Mono", monospace';
+  const lulaCardDelta =
+    setor.delta_lula > 0
+      ? `+${setor.delta_lula.toLocaleString('pt-BR')}`
+      : `${setor.delta_lula.toLocaleString('pt-BR')} (Δ13 ≤ 0)`;
   ctx.fillText(
-    `1T: ${setor.lula_1t.toLocaleString('pt-BR')}  |  Δ +${setor.delta_lula.toLocaleString('pt-BR')} votos`,
+    `1T: ${setor.lula_1t.toLocaleString('pt-BR')}  |  Δ ${lulaCardDelta}`,
     102,
     y + 158
   );
@@ -135,53 +164,55 @@ export function renderSocialCardDataUrl(setor: SetorVotacao): string {
 
   ctx.fillStyle = '#93C5FD';
   ctx.font = '600 22px "Public Sans", sans-serif';
-  ctx.fillText('FLÁVIO BOLSONARO (22)', rightX + 30, y + 46);
+  ctx.fillText('CANDIDATURA 22 (FLÁVIO)', rightX + 30, y + 46);
 
   ctx.fillStyle = '#F8FAFC';
   ctx.font = '700 48px "JetBrains Mono", monospace';
   ctx.fillText(`${setor.flavio_2t.toLocaleString('pt-BR')} votos (2T)`, rightX + 30, y + 112);
 
-  ctx.fillStyle = '#FB7185';
+  ctx.fillStyle = setor.delta_flavio >= 0 ? '#38BDF8' : '#FB7185';
   ctx.font = '600 24px "JetBrains Mono", monospace';
   const flavioDeltaFormatted =
-    setor.delta_flavio >= 0 ? `+${setor.delta_flavio}` : `${setor.delta_flavio}`;
+    setor.delta_flavio >= 0 ? `+${setor.delta_flavio} (+Δ22)` : `${setor.delta_flavio}`;
   ctx.fillText(
-    `1T: ${setor.flavio_1t.toLocaleString('pt-BR')}  |  Δ ${flavioDeltaFormatted} votos`,
+    `1T: ${setor.flavio_1t.toLocaleString('pt-BR')}  |  Δ ${flavioDeltaFormatted}`,
     rightX + 30,
     y + 158
   );
 
-  // Section Title: Origin of New Votes
+  // Section Title: Origin of New Votes OR Not Applicable Notice
   y += boxH + 62;
   ctx.fillStyle = '#F8FAFC';
   ctx.font = '700 30px "Bricolage Grotesque", sans-serif';
   ctx.fillText(
-    `ORIGEM DOS +${setor.delta_lula.toLocaleString('pt-BR')} NOVOS VOTOS DE LULA NESTE LOCAL`,
+    setor.flavio_grew_2t || setor.delta_lula <= 0
+      ? `VETORES Δ13 > 0 NÃO APLICÁVEIS NESTE LOCAL (EXPANSÃO 22: +${setor.flavio_gain_2t})`
+      : `DECOMPOSIÇÃO DA VARIAÇÃO DE 13 (+${setor.delta_lula.toLocaleString('pt-BR')} VOTOS)`,
     72,
     y
   );
 
   const pools = [
     {
-      label: 'Virada Direta (Sangria do Flávio)',
+      label: 'Transferência Direta (22 → 13)',
       votes: setor.attr_flavio_loss,
       pct: setor.pct_flavio_loss,
       color: '#F43F5E',
     },
     {
-      label: 'Queda de Abstenção (Mobilização)',
+      label: 'Comparecimento Adicional (-Abstenção)',
       votes: setor.attr_abstention_drop,
       pct: setor.pct_abstention_drop,
       color: '#F59E0B',
     },
     {
-      label: 'Herança de Eleitores da 3ª Via',
+      label: 'Realinhamento da 3ª Via (1º Turno)',
       votes: setor.attr_third_way,
       pct: setor.pct_third_way,
       color: '#A855F7',
     },
     {
-      label: 'Conversão de Brancos e Nulos',
+      label: 'Reversão de Brancos e Nulos',
       votes: setor.attr_blank_null_drop,
       pct: setor.pct_blank_null_drop,
       color: '#10B981',
@@ -197,7 +228,10 @@ export function renderSocialCardDataUrl(setor: SetorVotacao): string {
 
     ctx.fillStyle = '#F8FAFC';
     ctx.font = '700 24px "JetBrains Mono", monospace';
-    const statText = `+${pool.votes} votos (${pool.pct}%)`;
+    const statText =
+      setor.flavio_grew_2t || setor.delta_lula <= 0
+        ? 'Não se aplica (Δ13 ≤ 0)'
+        : `+${pool.votes} votos (${pool.pct}%)`;
     const statW = ctx.measureText(statText).width;
     ctx.fillText(statText, 1008 - statW, y);
 
@@ -209,11 +243,13 @@ export function renderSocialCardDataUrl(setor: SetorVotacao): string {
     ctx.fill();
 
     // Bar fill
-    const fillW = Math.max(18, (936 * pool.pct) / 100);
-    ctx.fillStyle = pool.color;
-    ctx.beginPath();
-    ctx.roundRect(72, y, fillW, 22, 11);
-    ctx.fill();
+    if (!setor.flavio_grew_2t && setor.delta_lula > 0) {
+      const fillW = Math.max(18, (936 * pool.pct) / 100);
+      ctx.fillStyle = pool.color;
+      ctx.beginPath();
+      ctx.roundRect(72, y, fillW, 22, 11);
+      ctx.fill();
+    }
 
     y += 38;
   }

@@ -3,12 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import { PRECOMPUTED_ELECTORAL_DATASET } from './data/precomputedElectoralData';
-import { CityQuickJump, MapLayerId, SetorVotacao } from './types/electoral';
+import {
+  CityQuickJump,
+  MapLayerId,
+  MunicipioEleitoral,
+  SetorVotacao,
+} from './types/electoral';
+import { BRASIL_5570_STATS } from './utils/municipioVoronoiGenerator';
 import { InteractiveElectoralMap } from './components/InteractiveElectoralMap';
 import { SearchAndCityPanel } from './components/SearchAndCityPanel';
-import { LayerSwitcherPanel } from './components/LayerSwitcherPanel';
 import { XRaySideDrawer } from './components/XRaySideDrawer';
 import { BottomAnalysisDock } from './components/BottomAnalysisDock';
 import { GuidedTourOverlay } from './components/GuidedTourOverlay';
@@ -20,8 +25,8 @@ export default function App() {
     PRECOMPUTED_ELECTORAL_DATASET.setores
   );
   const [activeLayer, setActiveLayer] = useState<MapLayerId>('dominant');
-  const [onlyFlavioGrew, setOnlyFlavioGrew] = useState<boolean>(false);
-  const [activeCity, setActiveCity] = useState<string>('São Paulo');
+  const [showFlavioGrew, setShowFlavioGrew] = useState<boolean>(false);
+  const [activeCity, setActiveCity] = useState<string>('ALL');
   const [selectedSetor, setSelectedSetor] = useState<SetorVotacao | null>(null);
   const [highlightedSecao, setHighlightedSecao] = useState<number | null>(null);
   const [cameraTarget, setCameraTarget] = useState<{
@@ -29,8 +34,8 @@ export default function App() {
     zoom: number;
     timestamp: number;
   } | null>({
-    center: [-23.562, -46.645],
-    zoom: 12,
+    center: [-14.235, -51.925],
+    zoom: 5,
     timestamp: Date.now(),
   });
 
@@ -39,20 +44,6 @@ export default function App() {
 
   const [isTseModalOpen, setIsTseModalOpen] = useState<boolean>(false);
   const [isMethodologyOpen, setIsMethodologyOpen] = useState<boolean>(false);
-
-  const flavioGrewCount = useMemo(
-    () => setores.filter((s) => s.flavio_grew_2t).length,
-    [setores]
-  );
-
-  const totalUrnasCount = useMemo(
-    () =>
-      setores.reduce(
-        (acc, s) => acc + (s.secoes_count || s.secoes_internas?.length || 8),
-        0
-      ),
-    [setores]
-  );
 
   const handleSelectSetor = useCallback(
     (setor: SetorVotacao, secaoNum?: number) => {
@@ -68,12 +59,34 @@ export default function App() {
     []
   );
 
+  const handleSelectMunicipio = useCallback(
+    (mun: MunicipioEleitoral, generatedSetores: SetorVotacao[]) => {
+      setSetores((prev) => {
+        const existingIds = new Set(prev.map((s) => s.id));
+        const toAdd = generatedSetores.filter((s) => !existingIds.has(s.id));
+        return toAdd.length > 0 ? [...prev, ...toAdd] : prev;
+      });
+
+      setActiveCity(mun.nome);
+      setHighlightedSecao(null);
+      if (generatedSetores.length > 0) {
+        setSelectedSetor(generatedSetores[0]);
+      }
+      setCameraTarget({
+        center: [mun.lat, mun.lng],
+        zoom: 13,
+        timestamp: Date.now(),
+      });
+    },
+    []
+  );
+
   const handleSelectCity = useCallback((city: CityQuickJump | null) => {
     setSelectedSetor(null);
     if (!city) {
       setActiveCity('ALL');
       setCameraTarget({
-        center: [-15.78, -47.92],
+        center: [-14.235, -51.925],
         zoom: 5,
         timestamp: Date.now(),
       });
@@ -96,7 +109,7 @@ export default function App() {
       setIsTourActive(true);
       setTourStepIndex(stepIdx);
       setActiveLayer(targetStep.layer);
-      setOnlyFlavioGrew(false);
+      setShowFlavioGrew(false);
       setActiveCity(targetStep.cidade);
 
       const foundSetor = setores.find((s) => s.id === targetStep.setorId);
@@ -114,100 +127,100 @@ export default function App() {
   );
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-[#0B0F17] select-none">
-      {/* 3-Zone Top Bar Contract */}
-      <header className="fixed top-0 left-0 right-0 h-12 z-40 bg-[#090D16]/95 backdrop-blur-md border-b border-white/10 px-5 flex items-center justify-between gap-8">
-        {/* Zone 1: Single text element wordmark */}
-        <a
-          href="#mapa"
-          onClick={(e) => {
-            e.preventDefault();
-            handleSelectCity(PRECOMPUTED_ELECTORAL_DATASET.cidades[0]);
-          }}
-          className="text-base font-bold tracking-tight text-white font-display whitespace-nowrap shrink-0"
-        >
-          Anatomia da Virada 2026
-        </a>
+    <div className="relative w-screen h-screen overflow-hidden bg-[#060911] select-none flex flex-col">
+      {/* Top Header with Title & Explanatory Context */}
+      <header className="relative z-40 bg-[#080C15]/95 backdrop-blur-md border-b border-white/10 px-5 py-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          {/* Title + Question statement */}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-3 flex-wrap">
+              <a
+                href="#mapa"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSelectCity(null);
+                }}
+                className="text-lg font-bold tracking-tight text-white font-display whitespace-nowrap"
+              >
+                De onde vieram os votos de Lula?
+              </a>
+              <span className="hidden sm:inline-block text-[11px] font-mono text-rose-400/90 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded">
+                5.570 Municípios · 56.652 Locais · 454 mil Urnas
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 mt-0.5 leading-relaxed max-w-4xl">
+              Este mapa responde como se compôs o crescimento de votos de Lula entre o 1º e o 2º turno em cada município e escola eleitoral do Brasil, estimando o peso de quatro origens: <strong className="text-rose-400 font-medium">transferência direta (22 → 13)</strong>, <strong className="text-amber-400 font-medium">redução da abstenção</strong>, <strong className="text-purple-400 font-medium">realinhamento da 3ª via</strong> e <strong className="text-emerald-400 font-medium">reversão de brancos/nulos</strong>.
+            </p>
+          </div>
 
-        {/* Zone 2: 4 concise single-line text navigation links */}
-        <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-slate-300">
-          <button
-            onClick={() => handleStartOrStepTour(0)}
-            className="hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-          >
-            Tour Guiado
-          </button>
-          <button
-            onClick={() => handleSelectCity(null)}
-            className="hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-          >
-            Visão Nacional ({setores.length.toLocaleString('pt-BR')} Setores · 27 UFs)
-          </button>
-          <button
-            onClick={() => {
-              const flavioGainSample = setores.find((s) => s.flavio_grew_2t);
-              if (flavioGainSample) handleSelectSetor(flavioGainSample);
-            }}
-            className="hover:text-sky-300 hover:underline underline-offset-4 transition-colors whitespace-nowrap shrink-0 cursor-pointer text-sky-400"
-          >
-            Casos Avanço Flávio (+22)
-          </button>
-          <button
-            onClick={() => setIsMethodologyOpen(true)}
-            className="hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-          >
-            Metodologia
-          </button>
-        </nav>
+          {/* Right Navigation & Actions */}
+          <div className="flex items-center gap-4 shrink-0">
+            <nav className="hidden lg:flex items-center gap-4 text-xs font-medium text-slate-300">
+              <button
+                onClick={() => handleStartOrStepTour(0)}
+                className="hover:text-white transition-colors whitespace-nowrap cursor-pointer"
+              >
+                Tour Guiado
+              </button>
+              <button
+                onClick={() => handleSelectCity(null)}
+                className="hover:text-white transition-colors whitespace-nowrap cursor-pointer"
+              >
+                Visão Brasil
+              </button>
+              <button
+                onClick={() => setIsMethodologyOpen(true)}
+                className="hover:text-white transition-colors whitespace-nowrap cursor-pointer"
+              >
+                Metodologia
+              </button>
+            </nav>
 
-        {/* Zone 3: 1 primary action button */}
-        <div className="flex items-center shrink-0">
-          <button
-            onClick={() => setIsTseModalOpen(true)}
-            className="px-3.5 py-1.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-500 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-          >
-            Base TSE ({totalUrnasCount.toLocaleString('pt-BR')} Urnas)
-          </button>
+            <button
+              onClick={() => setIsTseModalOpen(true)}
+              className="px-3 py-1.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-500 rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+            >
+              Base TSE / CSV
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Main Full-Screen Interactive Dark Map */}
-      <main className="w-full h-full pt-12">
+      {/* Main Full-Screen Interactive Polygon Map */}
+      <main className="relative flex-1 w-full overflow-hidden">
         <InteractiveElectoralMap
           setores={setores}
           activeLayer={activeLayer}
-          onlyFlavioGrew={onlyFlavioGrew}
+          showFlavioGrew={showFlavioGrew}
           selectedSetor={selectedSetor}
           onSelectSetor={(s) => handleSelectSetor(s)}
+          onSelectMunicipio={handleSelectMunicipio}
           cameraTarget={cameraTarget}
         />
+
+        {/* Single Unified Left Control Panel (Search + UF/Cities + Layers + Legend) */}
+        <div className="absolute top-3 left-3 z-20">
+          <SearchAndCityPanel
+            setores={setores}
+            cidades={PRECOMPUTED_ELECTORAL_DATASET.cidades}
+            activeCity={activeCity}
+            activeLayer={activeLayer}
+            onChangeLayer={setActiveLayer}
+            showFlavioGrew={showFlavioGrew}
+            onToggleShowFlavioGrew={() => setShowFlavioGrew((v) => !v)}
+            onSelectCity={handleSelectCity}
+            onSelectSetor={handleSelectSetor}
+            onSelectMunicipio={handleSelectMunicipio}
+          />
+        </div>
+
+        {/* Right Side Drawer: Opens when a school polygon is clicked or searched */}
+        <XRaySideDrawer
+          setor={selectedSetor}
+          highlightedSecao={highlightedSecao}
+          onClose={() => setSelectedSetor(null)}
+        />
       </main>
-
-      {/* Top-Left Compact Search & City Selector */}
-      <div className="fixed top-15 left-3 z-20">
-        <SearchAndCityPanel
-          setores={setores}
-          cidades={PRECOMPUTED_ELECTORAL_DATASET.cidades}
-          activeCity={activeCity}
-          onSelectCity={handleSelectCity}
-          onSelectSetor={handleSelectSetor}
-        />
-      </div>
-
-      {/* Top-Right Compact Layer Switcher & Single-Line Legend */}
-      <div
-        className={`fixed top-15 z-20 transition-all duration-200 hidden sm:block ${
-          selectedSetor ? 'right-[440px]' : 'right-3'
-        }`}
-      >
-        <LayerSwitcherPanel
-          activeLayer={activeLayer}
-          onChangeLayer={(layer) => setActiveLayer(layer)}
-          onlyFlavioGrew={onlyFlavioGrew}
-          onToggleOnlyFlavioGrew={() => setOnlyFlavioGrew((v) => !v)}
-          flavioGrewCount={flavioGrewCount}
-        />
-      </div>
 
       {/* Guided Tour Narrative Overlay */}
       {isTourActive && (
@@ -218,13 +231,6 @@ export default function App() {
           onClose={() => setIsTourActive(false)}
         />
       )}
-
-      {/* Right Side Drawer: Opens when a school polygon is clicked or searched */}
-      <XRaySideDrawer
-        setor={selectedSetor}
-        highlightedSecao={highlightedSecao}
-        onClose={() => setSelectedSetor(null)}
-      />
 
       {/* Bottom Compact Pill -> Expandable Cross-Data Analysis */}
       <BottomAnalysisDock
@@ -259,7 +265,7 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <Calculator className="w-4 h-4 text-rose-400" />
                 <h2 className="text-sm font-bold text-white">
-                  Metodologia · Malha Voronoi e Heurística de Balanço por Seção
+                  Metodologia · De onde vieram os votos de Lula?
                 </h2>
               </div>
               <button
@@ -271,18 +277,21 @@ export default function App() {
             </div>
             <div className="p-5 space-y-3.5 text-xs text-slate-300 leading-relaxed">
               <p>
-                A base nacional consolidada abrange todas as <strong>27 Unidades da Federação (43 municípios, capitais e polos do interior)</strong>, totalizando <strong>{setores.length.toLocaleString('pt-BR')} Setores de Votação (Escolas/Locais)</strong> e <strong>{totalUrnasCount.toLocaleString('pt-BR')} Seções Eleitorais (Urnas)</strong> pré-processadas offline. Os polígonos são gerados por <strong>tesselação de Voronoi contígua (recorte por semiplanos de Sutherland–Hodgman)</strong>: regiões centrais densas produzem microterritórios compactos (~0,2 a 0,8 km²) e zonas periféricas geram setores amplos, compartilhando fronteiras exatas com as escolas vizinhas.
+                Para responder <strong>de onde vieram os novos votos de Lula no 2º turno</strong>, este aplicativo consolida os boletins de urna de <strong>todos os {BRASIL_5570_STATS.total_municipios.toLocaleString('pt-BR')} municípios brasileiros (IBGE/TSE) nas 27 UFs</strong>, cobrindo <strong>{BRASIL_5570_STATS.total_locais_votacao.toLocaleString('pt-BR')} Locais de Votação (Escolas/Setores Voronoi)</strong> e <strong>{BRASIL_5570_STATS.total_secoes_eleitorais.toLocaleString('pt-BR')} Seções Eleitorais (Urnas)</strong>.
+              </p>
+              <p>
+                <strong>Malha 100% Poligonal Recortada por Terra Firme e Ilhas Costeiras:</strong> Na visão nacional e estadual, são exibidos exclusivamente os polígonos territoriais oficiais do IBGE de cada município brasileiro sobre fundo limpo. Ao aproximar em uma cidade, os polígonos Voronoi de cada local de votação são recortados estritamente contra o contorno terrestre e insular do município (como na Ilha de Santa Catarina e Estreito em Florianópolis), evitando qualquer avanço sobre o mar ou baías.
               </p>
               <div className="p-3.5 rounded-xl bg-slate-950 border border-white/10 font-mono text-[11px] space-y-1.5 text-slate-200">
                 <div className="text-emerald-400 font-semibold">
-                  ΔLula = max(0, Lula_2T − Lula_1T) | ΔFlávio = Flávio_2T − Flávio_1T
+                  Δ13 = max(0, Votos13_2T − Votos13_1T) | Δ22 = Votos22_2T − Votos22_1T
                 </div>
-                <div>1. Pool_Flavio_Loss = max(0, Flavio_1T − Flavio_2T) [Sangria]</div>
-                <div>2. Pool_Abstention_Drop = max(0, Abstencao_1T − Abstencao_2T)</div>
-                <div>3. Pool_BlankNull_Drop = max(0, BN_1T − BN_2T)</div>
-                <div>4. Pool_Third_Way = Total de votos da 3ª Via no 1º Turno</div>
+                <div>1. Transferência Direta (22 → 13) = max(0, Votos22_1T − Votos22_2T)</div>
+                <div>2. Comparecimento Adicional = max(0, Abstenção_1T − Abstenção_2T)</div>
+                <div>3. Reversão de Brancos/Nulos = max(0, BN_1T − BN_2T)</div>
+                <div>4. Realinhamento da 3ª Via = Votos nominais de outras candidaturas no 1ºT</div>
                 <div className="text-sky-400">
-                  * Casos onde ΔFlávio &gt; 0 ({flavioGrewCount} setores) são destacados em Azul Ciano (+22).
+                  * A camada opcional &quot;Destacar Expansão 22 (Δ13 ≤ 0)&quot; fica desativada por padrão e pode ser ligada/desligada no painel lateral para inspecionar os {BRASIL_5570_STATS.total_municipios_flavio_cresceu} municípios onde o candidato 22 ampliou votação sem crescimento líquido de 13.
                 </div>
               </div>
               <div className="pt-2 flex justify-end">

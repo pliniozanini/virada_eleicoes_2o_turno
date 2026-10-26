@@ -116,28 +116,28 @@ export const XRaySideDrawer: React.FC<XRaySideDrawerProps> = ({
   const originPools = [
     {
       key: 'flavio_loss' as const,
-      label: 'Virada Direta (Sangria do Flávio)',
+      label: 'Transferência Direta (22 → 13)',
       votes: setor.attr_flavio_loss,
       pct: setor.pct_flavio_loss,
       color: '#F43F5E',
     },
     {
       key: 'abstention_drop' as const,
-      label: 'Queda de Abstenção (Mobilização)',
+      label: 'Comparecimento Adicional (Redução de Abstenção)',
       votes: setor.attr_abstention_drop,
       pct: setor.pct_abstention_drop,
       color: '#F59E0B',
     },
     {
       key: 'third_way' as const,
-      label: 'Herança da 3ª Via (1º Turno)',
+      label: 'Realinhamento da 3ª Via (1º Turno)',
       votes: setor.attr_third_way,
       pct: setor.pct_third_way,
       color: '#A855F7',
     },
     {
       key: 'blank_null_drop' as const,
-      label: 'Conversão de Brancos e Nulos',
+      label: 'Reversão de Brancos e Nulos',
       votes: setor.attr_blank_null_drop,
       pct: setor.pct_blank_null_drop,
       color: '#10B981',
@@ -146,7 +146,7 @@ export const XRaySideDrawer: React.FC<XRaySideDrawerProps> = ({
 
   return (
     <>
-      <aside className="fixed top-14 right-3 bottom-3 w-[420px] max-w-[calc(100vw-24px)] z-30 bg-[#0F172A]/96 backdrop-blur-xl border border-white/12 rounded-xl shadow-2xl flex flex-col overflow-hidden text-slate-100">
+      <aside className="absolute top-3 right-3 bottom-3 w-[410px] max-w-[calc(100vw-24px)] z-30 bg-[#0F172A]/96 backdrop-blur-xl border border-white/12 rounded-xl shadow-2xl flex flex-col overflow-hidden text-slate-100">
         {/* Drawer Header */}
         <div className="px-4 py-3.5 border-b border-white/10 flex items-start justify-between gap-2 bg-slate-900/60">
           <div className="min-w-0">
@@ -190,7 +190,7 @@ export const XRaySideDrawer: React.FC<XRaySideDrawerProps> = ({
                 : 'bg-slate-800/70 text-slate-400 hover:text-white'
             }`}
           >
-            Resumo & Origem
+             Balanço & Vetores
           </button>
           <button
             onClick={() => setActiveTab('urnas')}
@@ -208,24 +208,20 @@ export const XRaySideDrawer: React.FC<XRaySideDrawerProps> = ({
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {activeTab === 'resumo' ? (
             <>
-              {/* Special Callout Banner when Flavio Bolsonaro GREW in the 2nd Round */}
+              {/* Special Callout Banner when Candidate 22 expanded and Δ13 <= 0 */}
               {setor.flavio_grew_2t && (
                 <div className="p-3 rounded-xl bg-sky-950/60 border border-sky-400/40 space-y-1">
                   <div className="flex items-center justify-between text-xs font-bold text-sky-300">
                     <span className="flex items-center gap-1.5">
                       <TrendingUp className="w-4 h-4 text-sky-400" />
-                      Caso Atípico · Flávio Cresceu no 2º Turno
+                      Expansão da Candidatura 22 · Δ13 ≤ 0
                     </span>
                     <span className="font-mono">
-                      +{setor.flavio_gain_2t} votos (+
-                      {((setor.flavio_gain_2t / Math.max(1, setor.flavio_1t)) * 100).toFixed(
-                        1
-                      )}
-                      %)
+                      +{setor.flavio_gain_2t} votos (Cand. 22)
                     </span>
                   </div>
                   <p className="text-[11px] text-sky-100/85 leading-relaxed">
-                    Ao contrário da média nacional onde Flávio perdeu votos entre os turnos, neste setor ele absorveu parte da 3ª via conservadora e ampliou sua votação.
+                    Neste setor, a candidatura 13 não registrou acréscimo líquido ({setor.delta_lula} votos no 2ºT) e houve expansão da candidatura 22 (+{setor.flavio_gain_2t} votos). Portanto, os vetores de <strong>Transferência 22 → 13</strong>, <strong>Redução de Abstenção</strong> e <strong>Realinhamento da 3ª Via (→ 13)</strong> <strong>não se aplicam</strong> neste local.
                   </p>
                 </div>
               )}
@@ -234,9 +230,15 @@ export const XRaySideDrawer: React.FC<XRaySideDrawerProps> = ({
               <div className="grid grid-cols-2 gap-2.5">
                 <div className="p-3 rounded-xl bg-slate-900/90 border border-rose-500/30">
                   <div className="flex items-center justify-between text-[11px] text-rose-300 font-medium">
-                    <span>Lula (13)</span>
-                    <span className="font-mono text-emerald-400 font-semibold">
-                      +{setor.delta_lula}
+                    <span>Candidatura 13 (Lula)</span>
+                    <span
+                      className={`font-mono font-semibold ${
+                        setor.delta_lula > 0 ? 'text-emerald-400' : 'text-slate-400'
+                      }`}
+                    >
+                      {setor.delta_lula > 0
+                        ? `+${setor.delta_lula}`
+                        : `${setor.delta_lula} (Δ13 ≤ 0)`}
                     </span>
                   </div>
                   <div className="text-xl font-bold font-mono tabular-nums text-white mt-0.5">
@@ -255,14 +257,14 @@ export const XRaySideDrawer: React.FC<XRaySideDrawerProps> = ({
                   }`}
                 >
                   <div className="flex items-center justify-between text-[11px] text-sky-300 font-medium">
-                    <span>Flávio (22)</span>
+                    <span>Candidatura 22 (Flávio)</span>
                     <span
                       className={`font-mono font-semibold ${
                         setor.delta_flavio >= 0 ? 'text-sky-400' : 'text-rose-400'
                       }`}
                     >
                       {setor.delta_flavio >= 0
-                        ? `+${setor.delta_flavio} (Cresceu)`
+                        ? `+${setor.delta_flavio} (+Δ22)`
                         : setor.delta_flavio}
                     </span>
                   </div>
@@ -275,54 +277,108 @@ export const XRaySideDrawer: React.FC<XRaySideDrawerProps> = ({
                 </div>
               </div>
 
-              {/* 2. Origin Breakdown Bars */}
-              <div className="p-3.5 rounded-xl bg-slate-900/60 border border-white/8 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-white">
-                    De onde vieram os +{setor.delta_lula} novos votos de Lula?
-                  </h3>
-                </div>
+              {/* 2. Origin Breakdown Bars OR Not-Applicable Panel when Candidate 22 Expanded */}
+              {setor.flavio_grew_2t || setor.delta_lula <= 0 ? (
+                <div className="p-3.5 rounded-xl bg-slate-900/80 border border-sky-500/30 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-semibold text-sky-300">
+                      Vetores de Crescimento de 13 Não Aplicáveis neste Setor
+                    </h3>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-400/30">
+                      Δ13: {setor.delta_lula}
+                    </span>
+                  </div>
 
-                <div className="space-y-2.5">
-                  {originPools.map((pool) => (
-                    <div key={pool.key} className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-300">{pool.label}</span>
-                        <span className="font-mono tabular-nums font-semibold text-white">
-                          +{pool.votes}{' '}
-                          <span className="text-slate-400 font-normal">
-                            ({pool.pct}%)
-                          </span>
+                  <div className="space-y-2">
+                    {originPools.map((pool) => (
+                      <div
+                        key={pool.key}
+                        className="flex items-center justify-between py-1.5 px-2.5 rounded-lg bg-slate-950/70 border border-white/5 text-xs"
+                      >
+                        <span className="text-slate-400 line-through decoration-slate-600">
+                          {pool.label}
+                        </span>
+                        <span className="font-mono text-[11px] text-slate-400">
+                          Não se aplica (Δ13 ≤ 0)
                         </span>
                       </div>
-                      <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full"
-                          style={{
-                            width: `${Math.max(3, pool.pct)}%`,
-                            backgroundColor: pool.color,
-                          }}
-                        />
-                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-2 border-t border-white/10 space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-sky-300">
+                        Expansão Líquida da Candidatura 22:
+                      </span>
+                      <span className="font-mono font-bold text-sky-400">
+                        +{setor.flavio_gain_2t} votos (+
+                        {(
+                          (setor.flavio_gain_2t / Math.max(1, setor.flavio_1t)) *
+                          100
+                        ).toFixed(1)}
+                        %)
+                      </span>
                     </div>
-                  ))}
+                    <div className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-sky-500"
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                    <p className="text-[11px] text-slate-400">
+                      Realinhamento da 3ª via ({setor.terceira_via_1t} votos no 1ºT) para a candidatura 22 + retração líquida da candidatura 13 ({setor.delta_lula} votos).
+                    </p>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="p-3.5 rounded-xl bg-slate-900/60 border border-white/8 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-semibold text-white">
+                      Decomposição da Variação Positiva de 13 (+{setor.delta_lula} votos)
+                    </h3>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {originPools.map((pool) => (
+                      <div key={pool.key} className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-slate-300">{pool.label}</span>
+                          <span className="font-mono tabular-nums font-semibold text-white">
+                            +{pool.votes}{' '}
+                            <span className="text-slate-400 font-normal">
+                              ({pool.pct}%)
+                            </span>
+                          </span>
+                        </div>
+                        <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${Math.max(3, pool.pct)}%`,
+                              backgroundColor: pool.color,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* 3. Neighborhood Comparison */}
               <div className="p-3.5 rounded-xl bg-slate-900/90 border border-white/10 space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-white flex items-center gap-1.5">
                     <Building2 className="w-3.5 h-3.5 text-amber-400" />
-                    Comparativo com a Vizinhança
+                    Comparativo com o Entorno Territorial
                   </span>
                   <span
                     className="text-xs font-mono font-bold"
                     style={{ color: domMeta.color }}
                   >
                     {setor.flavio_grew_2t
-                      ? 'Reduto +22'
-                      : `${setor.comparativo_vizinhanca.destaque_ratio}x acima`}
+                      ? 'Vetores Δ13 N/A (+22)'
+                      : `${setor.comparativo_vizinhanca.destaque_ratio}x média local`}
                   </span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
@@ -366,7 +422,7 @@ export const XRaySideDrawer: React.FC<XRaySideDrawerProps> = ({
                           onClick={() => toggleSort('delta_lula')}
                           className="inline-flex items-center gap-1 text-emerald-400"
                         >
-                          +ΔLula <ArrowUpDown className="w-2.5 h-2.5" />
+                          ΔLula <ArrowUpDown className="w-2.5 h-2.5" />
                         </button>
                       </th>
                       <th className="py-2 px-2 text-right">
@@ -398,6 +454,7 @@ export const XRaySideDrawer: React.FC<XRaySideDrawerProps> = ({
                   <tbody className="divide-y divide-white/5 text-xs font-mono tabular-nums">
                     {sortedSecoes.map((sec) => {
                       const isHighlighted = highlightedSecao === sec.secao_numero;
+                      const isNoLulaGain = sec.delta_lula <= 0 || sec.delta_flavio > 0;
                       return (
                         <tr
                           key={sec.secao_numero}
@@ -410,8 +467,12 @@ export const XRaySideDrawer: React.FC<XRaySideDrawerProps> = ({
                           <td className="py-2 px-2.5 font-semibold">
                             Seção {sec.secao_numero}
                           </td>
-                          <td className="py-2 px-2 text-right font-semibold text-emerald-400">
-                            +{sec.delta_lula}
+                          <td
+                            className={`py-2 px-2 text-right font-semibold ${
+                              sec.delta_lula > 0 ? 'text-emerald-400' : 'text-slate-400'
+                            }`}
+                          >
+                            {sec.delta_lula > 0 ? `+${sec.delta_lula}` : sec.delta_lula}
                           </td>
                           <td
                             className={`py-2 px-2 text-right font-semibold ${
@@ -423,10 +484,18 @@ export const XRaySideDrawer: React.FC<XRaySideDrawerProps> = ({
                               : sec.delta_flavio}
                           </td>
                           <td className="py-2 px-2 text-right text-amber-300">
-                            -{sec.pool_abstention_drop}
+                            {isNoLulaGain ? (
+                              <span className="text-slate-500">N/A</span>
+                            ) : (
+                              `-${sec.pool_abstention_drop}`
+                            )}
                           </td>
                           <td className="py-2 px-2.5 text-right text-purple-300">
-                            {sec.pool_third_way}
+                            {isNoLulaGain ? (
+                              <span className="text-slate-500">N/A</span>
+                            ) : (
+                              sec.pool_third_way
+                            )}
                           </td>
                         </tr>
                       );

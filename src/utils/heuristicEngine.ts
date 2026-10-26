@@ -13,54 +13,54 @@ export const FACTOR_META: Record<
   }
 > = {
   flavio_loss: {
-    label: 'Virada Direta (Sangria do Flávio)',
-    shortLabel: 'Sangria do Flávio',
+    label: 'Transferência Direta (22 → 13)',
+    shortLabel: 'Transferência 22 → 13',
     color: '#F43F5E',
     bgClass: 'bg-rose-500',
     textClass: 'text-rose-400',
     borderClass: 'border-rose-500/40',
     description:
-      'Eleitores que votaram em Flávio Bolsonaro (22) no 1º turno e migraram diretamente para Lula (13) no 2º turno.',
+      'Redução líquida de votos da candidatura 22 entre o 1º e o 2º turno acompanhada de crescimento da candidatura 13 na mesma seção.',
   },
   abstention_drop: {
-    label: 'Queda de Abstenção (Mobilização)',
-    shortLabel: 'Queda de Abstenção',
+    label: 'Comparecimento Adicional (Redução de Abstenção)',
+    shortLabel: 'Redução de Abstenção',
     color: '#F59E0B',
     bgClass: 'bg-amber-500',
     textClass: 'text-amber-400',
     borderClass: 'border-amber-500/40',
     description:
-      'Eleitores que se abstiveram no 1º turno e compareceram às urnas no 2º turno impulsionando a virada.',
+      'Eleitores ausentes no 1º turno que compareceram às urnas no 2º turno, ampliando o total de votos válidos da seção.',
   },
   third_way: {
-    label: 'Herança da 3ª Via',
-    shortLabel: 'Herança da 3ª Via',
+    label: 'Realinhamento da 3ª Via (→ 13)',
+    shortLabel: 'Realinhamento 3ª Via',
     color: '#A855F7',
     bgClass: 'bg-purple-500',
     textClass: 'text-purple-400',
     borderClass: 'border-purple-500/40',
     description:
-      'Transferência de votos de candidatos eliminados no 1º turno para a candidatura de Lula no 2º turno.',
+      'Migração estimada de votos de candidaturas não classificadas no 1º turno para a candidatura 13 no 2º turno.',
   },
   blank_null_drop: {
-    label: 'Conversão de Brancos e Nulos',
-    shortLabel: 'Conversão B/N',
+    label: 'Reversão de Brancos e Nulos',
+    shortLabel: 'Reversão Brancos/Nulos',
     color: '#10B981',
     bgClass: 'bg-emerald-500',
     textClass: 'text-emerald-400',
     borderClass: 'border-emerald-500/40',
     description:
-      'Redução líquida de votos brancos e nulos entre o 1º e o 2º turno convertida em votos válidos.',
+      'Redução líquida de votos em branco e nulos entre o 1º e o 2º turno convertida em votos nominais válidos.',
   },
   flavio_gain: {
-    label: 'Crescimento de Flávio no 2ºT (Reduto 22)',
-    shortLabel: 'Avanço Flávio (+22)',
+    label: 'Expansão da Candidatura 22 (Δ13 ≤ 0)',
+    shortLabel: 'Expansão 22 (Δ13 ≤ 0)',
     color: '#0EA5E9',
     bgClass: 'bg-sky-500',
     textClass: 'text-sky-400',
     borderClass: 'border-sky-500/40',
     description:
-      'Caso atípico onde Flávio Bolsonaro (22) ganhou votos absolutos no 2º turno em relação ao 1º turno, absorvendo parte da 3ª via conservadora.',
+      'Locais onde a candidatura 13 não apresentou crescimento líquido no 2º turno (Δ13 ≤ 0) e a candidatura 22 expandiu sua votação (+Δ22). Nestes setores, os vetores de variação positiva para 13 não se aplicam.',
   },
 };
 
@@ -73,7 +73,7 @@ export const INCOME_BRACKET_LABELS: Record<string, { label: string; range: strin
 
 /**
  * Deterministically decomposes a SetorVotacao into its exact individual ballot boxes (Salas / Urnas)
- * so that all 2,200+ voting locations across Brazil have instant section-by-section tables
+ * so that all voting locations across Brazil have instant section-by-section tables
  * whose sum matches 100% of the school's aggregated totals.
  */
 export function getSecoesForSetor(setor: SetorVotacao): SecaoEleitoral[] {
@@ -92,7 +92,6 @@ export function getSecoesForSetor(setor: SetorVotacao): SecaoEleitoral[] {
     for (let i = 0; i < count; i++) {
       arr.push(base + (i < rem ? 1 : 0));
     }
-    // Add zero-sum perturbation across pairs so rooms look organic while summing to `total`
     for (let i = 0; i + 1 < count; i += 2) {
       const shift = ((i + seedOffset) % 5) - 2;
       if (arr[i] + shift >= 4 && arr[i + 1] - shift >= 4) {
@@ -151,14 +150,19 @@ export function computeSectionHeuristic(raw: {
   brancos_nulos_2t: number;
   abstencao_2t: number;
 }): SecaoEleitoral {
-  const delta_lula = Math.max(0, raw.lula_2t - raw.lula_1t);
+  const delta_lula = raw.lula_2t - raw.lula_1t;
   const delta_flavio = raw.flavio_2t - raw.flavio_1t;
+  const flavio_grew = delta_flavio > 0 || delta_lula <= 0;
   const flavio_gain_2t = Math.max(0, delta_flavio);
 
-  const pool_flavio_loss = Math.max(0, raw.flavio_1t - raw.flavio_2t);
-  const pool_abstention_drop = Math.max(0, raw.abstencao_1t - raw.abstencao_2t);
-  const pool_blank_null_drop = Math.max(0, raw.brancos_nulos_1t - raw.brancos_nulos_2t);
-  const pool_third_way = Math.max(0, raw.terceira_via_1t);
+  const pool_flavio_loss = flavio_grew ? 0 : Math.max(0, raw.flavio_1t - raw.flavio_2t);
+  const pool_abstention_drop = flavio_grew
+    ? 0
+    : Math.max(0, raw.abstencao_1t - raw.abstencao_2t);
+  const pool_blank_null_drop = flavio_grew
+    ? 0
+    : Math.max(0, raw.brancos_nulos_1t - raw.brancos_nulos_2t);
+  const pool_third_way = flavio_grew ? 0 : Math.max(0, raw.terceira_via_1t);
 
   const pool_sum =
     pool_flavio_loss + pool_abstention_drop + pool_blank_null_drop + pool_third_way;
@@ -168,7 +172,7 @@ export function computeSectionHeuristic(raw: {
   let attr_blank_null_drop = 0;
   let attr_third_way = 0;
 
-  if (delta_lula > 0 && pool_sum > 0) {
+  if (!flavio_grew && delta_lula > 0 && pool_sum > 0) {
     attr_flavio_loss = Math.round((delta_lula * pool_flavio_loss) / pool_sum);
     attr_abstention_drop = Math.round((delta_lula * pool_abstention_drop) / pool_sum);
     attr_blank_null_drop = Math.round((delta_lula * pool_blank_null_drop) / pool_sum);
@@ -179,7 +183,7 @@ export function computeSectionHeuristic(raw: {
   }
 
   let dominant_factor: DominantFactorKey = 'third_way';
-  if (delta_flavio > 0) {
+  if (flavio_grew) {
     dominant_factor = 'flavio_gain';
   } else {
     const pairs: [DominantFactorKey, number][] = [

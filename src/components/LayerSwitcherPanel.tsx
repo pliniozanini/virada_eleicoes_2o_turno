@@ -14,10 +14,10 @@ const LAYER_TABS: {
   id: MapLayerId;
   label: string;
 }[] = [
-  { id: 'dominant', label: 'Fator Dominante' },
-  { id: 'flavio_loss', label: 'Sangria vs. Avanço 22' },
-  { id: 'abstention', label: 'Queda de Abstenção' },
-  { id: 'third_way', label: 'Força da 3ª Via' },
+  { id: 'dominant', label: 'Vetor Predominante' },
+  { id: 'flavio_loss', label: 'Saldo 22 (Transf. vs. Expansão)' },
+  { id: 'abstention', label: 'Variação de Abstenção' },
+  { id: 'third_way', label: 'Realinhamento 3ª Via' },
 ];
 
 export const LayerSwitcherPanel: React.FC<LayerSwitcherPanelProps> = ({
@@ -29,7 +29,7 @@ export const LayerSwitcherPanel: React.FC<LayerSwitcherPanelProps> = ({
 }) => {
   return (
     <div className="bg-[#0F172A]/92 backdrop-blur-md border border-white/10 rounded-xl shadow-xl p-2.5 text-slate-100 max-w-[calc(100vw-24px)] space-y-2">
-      {/* Segmented Layer Switcher + Filter for Rare Flavio Growth Cases */}
+      {/* Segmented Layer Switcher + Filter for Candidate 22 Expansion Cases */}
       <div className="flex flex-wrap items-center gap-1.5">
         <div className="flex flex-wrap items-center gap-1 bg-slate-900/90 p-1 rounded-lg border border-white/5">
           {LAYER_TABS.map((tab) => {
@@ -50,7 +50,7 @@ export const LayerSwitcherPanel: React.FC<LayerSwitcherPanelProps> = ({
           })}
         </div>
 
-        {/* Dedicated Filter Toggle for Rare Cases where Flavio Gained Votes in 2T */}
+        {/* Dedicated Filter Toggle for Cases where Candidate 22 Expanded & Δ13 <= 0 */}
         <button
           onClick={onToggleOnlyFlavioGrew}
           className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 cursor-pointer border ${
@@ -58,10 +58,10 @@ export const LayerSwitcherPanel: React.FC<LayerSwitcherPanelProps> = ({
               ? 'bg-sky-500 text-slate-950 border-sky-300 shadow-md'
               : 'bg-sky-950/50 text-sky-300 border-sky-500/35 hover:bg-sky-900/60'
           }`}
-          title="Isolar no mapa os locais raros onde Flávio Bolsonaro ganhou votos no 2º turno em relação ao 1º turno"
+          title="Isolar no mapa os locais onde os vetores de crescimento de 13 não se aplicam (Δ13 ≤ 0 e expansão líquida da candidatura 22)"
         >
           <TrendingUp className="w-3.5 h-3.5" />
-          <span>Onde Flávio Cresceu (+22): {flavioGrewCount}</span>
+          <span>Expansão 22 / Δ13 ≤ 0 ({flavioGrewCount})</span>
         </button>
       </div>
 
@@ -71,23 +71,23 @@ export const LayerSwitcherPanel: React.FC<LayerSwitcherPanelProps> = ({
           <div className="flex flex-wrap items-center gap-3 text-slate-300">
             <span className="flex items-center gap-1.5 whitespace-nowrap">
               <span className="w-2.5 h-2.5 rounded-xs bg-[#F43F5E]" />
-              Sangria Flávio (22→13)
+              Transferência 22→13
             </span>
             <span className="flex items-center gap-1.5 whitespace-nowrap">
               <span className="w-2.5 h-2.5 rounded-xs bg-[#F59E0B]" />
-              Queda Abstenção
+              Redução Abstenção
             </span>
             <span className="flex items-center gap-1.5 whitespace-nowrap">
               <span className="w-2.5 h-2.5 rounded-xs bg-[#A855F7]" />
-              Herança 3ª Via
+              Realinhamento 3ª Via
             </span>
             <span className="flex items-center gap-1.5 whitespace-nowrap">
               <span className="w-2.5 h-2.5 rounded-xs bg-[#10B981]" />
-              Brancos/Nulos
+              Reversão B/N
             </span>
             <span className="flex items-center gap-1.5 whitespace-nowrap font-semibold text-sky-300">
               <span className="w-2.5 h-2.5 rounded-xs bg-[#0EA5E9] ring-1 ring-white/50" />
-              Avanço Flávio (+22 no 2ºT)
+              Expansão 22 (Vetores Δ13 N/A)
             </span>
           </div>
         )}
@@ -95,25 +95,25 @@ export const LayerSwitcherPanel: React.FC<LayerSwitcherPanelProps> = ({
         {activeLayer === 'flavio_loss' && (
           <div className="flex items-center gap-3 w-full">
             <span className="font-mono text-rose-400 whitespace-nowrap">
-              Sangria (-22% Flávio)
+              Transf. (-22% Cand. 22)
             </span>
             <div className="flex-1 grid grid-cols-6 gap-1 h-2 rounded overflow-hidden min-w-[140px]">
-              <div className="bg-[#E11D48]" title="Forte sangria de Flávio (>22%)" />
-              <div className="bg-[#F43F5E]" title="Sangria moderada (16%)" />
-              <div className="bg-[#FDA4AF]" title="Leve perda (6%)" />
+              <div className="bg-[#E11D48]" title="Alta transferência 22→13 (>22%)" />
+              <div className="bg-[#F43F5E]" title="Transferência moderada (16%)" />
+              <div className="bg-[#FDA4AF]" title="Leve retração (6%)" />
               <div className="bg-[#475569]" title="Estável" />
-              <div className="bg-[#38BDF8]" title="Flávio cresceu (+8%)" />
-              <div className="bg-[#0284C7]" title="Forte avanço de Flávio (+16%)" />
+              <div className="bg-[#38BDF8]" title="Expansão Cand. 22 (+8%)" />
+              <div className="bg-[#0284C7]" title="Forte expansão Cand. 22 (+16%)" />
             </div>
             <span className="font-mono text-sky-400 whitespace-nowrap">
-              Avanço (+16% Flávio)
+              Expansão (+16% Cand. 22)
             </span>
           </div>
         )}
 
         {activeLayer === 'abstention' && (
           <div className="flex items-center gap-3 w-full">
-            <span className="text-slate-400 whitespace-nowrap">Queda de Abstenção:</span>
+            <span className="text-slate-400 whitespace-nowrap">Redução de Abstenção:</span>
             <div className="flex-1 grid grid-cols-5 gap-1 h-2 rounded overflow-hidden min-w-[120px]">
               <div className="bg-[#38BDF8]" />
               <div className="bg-[#FDE68A]" />
@@ -127,7 +127,7 @@ export const LayerSwitcherPanel: React.FC<LayerSwitcherPanelProps> = ({
 
         {activeLayer === 'third_way' && (
           <div className="flex items-center gap-3 w-full">
-            <span className="text-slate-400 whitespace-nowrap">Peso da 3ª Via no Salto:</span>
+            <span className="text-slate-400 whitespace-nowrap">Participação da 3ª Via (Δ13):</span>
             <div className="flex-1 grid grid-cols-5 gap-1 h-2 rounded overflow-hidden min-w-[120px]">
               <div className="bg-[#334155]" />
               <div className="bg-[#D8B4FE]" />

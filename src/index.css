@@ -25,14 +25,14 @@
   }
 }
 
-/* Custom Dark Leaflet Styling (Keyless OpenStreetMap Dark Mode Filter) */
+/* Custom Dark Leaflet Styling (Clean Monochrome Street Reference at City Zoom) */
 .leaflet-container {
-  background: #0B0F17 !important;
+  background: #060911 !important;
   font-family: var(--font-sans) !important;
 }
 
-.dark-osm-tiles {
-  filter: invert(100%) hue-rotate(180deg) brightness(92%) contrast(92%) saturate(75%);
+.clean-monochrome-tiles {
+  filter: grayscale(100%) invert(100%) brightness(45%) contrast(120%);
 }
 
 .leaflet-tooltip.setor-tooltip {

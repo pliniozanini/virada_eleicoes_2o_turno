@@ -104,12 +104,12 @@ export const BottomAnalysisDock: React.FC<BottomAnalysisDockProps> = ({
       computeGroup(
         true,
         'Estados COM 2º Turno Estadual (SP, RJ, MG, PE, BA, RS, AM)',
-        'Campanhas estaduais ativas mobilizaram transporte e reduziram fortemente a abstenção.'
+        'Campanhas estaduais ativas elevaram o comparecimento e reduziram a abstenção.'
       ),
       computeGroup(
         false,
-        'Estados com Governador Eleito no 1º Turno (PR, DF, CE, PA, GO)',
-        'Sem disputa estadual no 2ºT, o salto dependeu mais da 3ª via e da sangria direta.'
+        'Estados com Governador Definido no 1º Turno (PR, DF, CE, PA, GO)',
+        'Sem disputa estadual no 2ºT, a variação decorreu sobretudo do realinhamento da 3ª via e transferência direta.'
       ),
     ];
   }, [setores]);
@@ -122,7 +122,7 @@ export const BottomAnalysisDock: React.FC<BottomAnalysisDockProps> = ({
           className="px-4 py-2 rounded-full bg-[#0F172A]/95 hover:bg-slate-800 backdrop-blur-md border border-white/15 shadow-xl text-xs font-semibold text-slate-100 flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap"
         >
           <BarChart3 className="w-3.5 h-3.5 text-rose-400" />
-          <span>Análise Socioeconômica: Renda IBGE · Efeito Governador · Cascata 2T</span>
+          <span>Análise Socioeconômica: Renda IBGE · Efeito Governador · Decomposição 2T</span>
           <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
         </button>
       </div>
@@ -154,7 +154,7 @@ export const BottomAnalysisDock: React.FC<BottomAnalysisDockProps> = ({
             }`}
           >
             <Landmark className="w-3.5 h-3.5" />
-            Efeito Palanque Estadual
+            Contexto Eleitoral Estadual
           </button>
 
           <button
@@ -166,7 +166,7 @@ export const BottomAnalysisDock: React.FC<BottomAnalysisDockProps> = ({
             }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
-            Cascata Nacional da Virada
+            Decomposição Agregada Nacional (1ºT → 2ºT)
           </button>
         </div>
 
@@ -213,8 +213,8 @@ export const BottomAnalysisDock: React.FC<BottomAnalysisDockProps> = ({
                 </div>
 
                 <div className="grid grid-cols-2 gap-1 pt-1 text-[11px] font-mono">
-                  <span className="text-rose-400">Sangria: {item.pctFlavio}%</span>
-                  <span className="text-amber-400">Abst.: {item.pctAbst}%</span>
+                  <span className="text-rose-400">Transf. 22→13: {item.pctFlavio}%</span>
+                  <span className="text-amber-400">-Abst.: {item.pctAbst}%</span>
                   <span className="text-purple-400">3ª Via: {item.pctThird}%</span>
                   <span className="text-emerald-400">B/N: {item.pctBn}%</span>
                 </div>
@@ -258,8 +258,8 @@ export const BottomAnalysisDock: React.FC<BottomAnalysisDockProps> = ({
                 </div>
 
                 <div className="grid grid-cols-4 gap-2 text-[11px] font-mono">
-                  <span className="text-rose-400">Sangria: {g.pctFlavio}%</span>
-                  <span className="text-amber-400">Abst.: {g.pctAbst}%</span>
+                  <span className="text-rose-400">Transf. 22→13: {g.pctFlavio}%</span>
+                  <span className="text-amber-400">-Abst.: {g.pctAbst}%</span>
                   <span className="text-purple-400">3ª Via: {g.pctThird}%</span>
                   <span className="text-emerald-400">B/N: {g.pctBn}%</span>
                 </div>
@@ -271,7 +271,7 @@ export const BottomAnalysisDock: React.FC<BottomAnalysisDockProps> = ({
         {activeTab === 'cascata_waterfall' && (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 font-mono">
             <div className="p-3 rounded-xl bg-slate-900 border border-white/10">
-              <div className="text-[10px] text-slate-400">1. Base 1º Turno</div>
+              <div className="text-[10px] text-slate-400">1. Votação 1º Turno (13)</div>
               <div className="text-base font-bold text-white mt-1">54,82 mi</div>
               <div className="text-[11px] text-slate-400 mt-1">
                 {resumoNacional.lula_1t_nacional.toLocaleString('pt-BR')}
@@ -279,35 +279,35 @@ export const BottomAnalysisDock: React.FC<BottomAnalysisDockProps> = ({
             </div>
 
             <div className="p-3 rounded-xl bg-rose-950/35 border border-rose-500/30">
-              <div className="text-[10px] text-rose-300">+ Sangria Flávio</div>
+              <div className="text-[10px] text-rose-300">+ Transf. 22 → 13</div>
               <div className="text-base font-bold text-rose-400 mt-1">+1,80 mi</div>
-              <div className="text-[11px] text-rose-200/80 mt-1">27,0% do salto</div>
+              <div className="text-[11px] text-rose-200/80 mt-1">27,0% de Δ13</div>
             </div>
 
             <div className="p-3 rounded-xl bg-amber-950/35 border border-amber-500/30">
-              <div className="text-[10px] text-amber-300">+ Queda Abstenção</div>
+              <div className="text-[10px] text-amber-300">+ Redução Abstenção</div>
               <div className="text-base font-bold text-amber-400 mt-1">+2,27 mi</div>
-              <div className="text-[11px] text-amber-200/80 mt-1">34,0% do salto</div>
+              <div className="text-[11px] text-amber-200/80 mt-1">34,0% de Δ13</div>
             </div>
 
             <div className="p-3 rounded-xl bg-purple-950/35 border border-purple-500/30">
-              <div className="text-[10px] text-purple-300">+ Herança 3ª Via</div>
+              <div className="text-[10px] text-purple-300">+ Realinhamento 3ª Via</div>
               <div className="text-base font-bold text-purple-400 mt-1">+2,13 mi</div>
-              <div className="text-[11px] text-purple-200/80 mt-1">32,0% do salto</div>
+              <div className="text-[11px] text-purple-200/80 mt-1">32,0% de Δ13</div>
             </div>
 
             <div className="p-3 rounded-xl bg-emerald-950/35 border border-emerald-500/30">
-              <div className="text-[10px] text-emerald-300">+ Brancos/Nulos</div>
+              <div className="text-[10px] text-emerald-300">+ Reversão B/N</div>
               <div className="text-base font-bold text-emerald-400 mt-1">+0,47 mi</div>
-              <div className="text-[11px] text-emerald-200/80 mt-1">7,0% do salto</div>
+              <div className="text-[11px] text-emerald-200/80 mt-1">7,0% de Δ13</div>
             </div>
 
             <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-400/50">
               <div className="text-[10px] text-emerald-300 font-semibold">
-                = Total 2º Turno
+                = Votação 2º Turno (13)
               </div>
               <div className="text-base font-bold text-white mt-1">61,49 mi</div>
-              <div className="text-[11px] text-emerald-400 mt-1">Eleito (13)</div>
+              <div className="text-[11px] text-emerald-400 mt-1">Total Consolidado</div>
             </div>
           </div>
         )}

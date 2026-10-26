@@ -130,6 +130,42 @@ export interface GuidedTourStep {
   destaqueMetrica: string;
 }
 
+export interface MunicipioEleitoral {
+  ibge: number;
+  nome: string;
+  uf: string;
+  regiao: 'Sudeste' | 'Nordeste' | 'Sul' | 'Centro-Oeste' | 'Norte';
+  lat: number;
+  lng: number;
+  capital: boolean;
+  locais_count: number;
+  secoes_count: number;
+  eleitores: number;
+  lula_1t: number;
+  flavio_1t: number;
+  terceira_via_1t: number;
+  bn_1t: number;
+  abst_1t: number;
+  lula_2t: number;
+  flavio_2t: number;
+  bn_2t: number;
+  abst_2t: number;
+  delta_lula: number;
+  delta_flavio: number;
+  flavio_grew_2t: boolean;
+  flavio_gain_2t: number;
+  pool_flavio_loss: number;
+  pool_abstention_drop: number;
+  pool_third_way: number;
+  pool_blank_null_drop: number;
+  pct_flavio_loss: number;
+  pct_abstention_drop: number;
+  pct_third_way: number;
+  pct_blank_null_drop: number;
+  dominant_factor: DominantFactorKey;
+  renda_sm: number;
+}
+
 export interface ConsolidatedDataset {
   gerado_em: string;
   status_apuracao: string;
